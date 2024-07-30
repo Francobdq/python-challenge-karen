@@ -1,6 +1,7 @@
 import graphene
-from fastapi import APIRouter, Request, HTTPException
+from fastapi import APIRouter, Request, HTTPException, Depends
 from graphene import ObjectType, String, Schema, Field, Int, Float, List
+from app.auth_service import jwt_required, oauth2_scheme
 import pandas as pd
 from pydantic import BaseModel
 
@@ -135,8 +136,39 @@ schema = Schema(query=Query)
 class GraphQLQuery(BaseModel):
     query: str
 
-@graphql_endpoint.post("/")
-async def graphql_post(request: Request, body: GraphQLQuery):
+
+@graphql_endpoint.post(
+    "/",
+    summary="Ejecutar consulta GraphQL",
+    description="""
+    Ejecuta una consulta GraphQL en el servidor.
+
+    **Esquemas disponibles**:
+
+    - `item(id_ga_producto: String)`: Obtiene un item por su ID.
+    - `itemsByClient(id_cli_cliente: Int)`: Obtiene todos los items de un cliente.
+    - `itemsByDate(id_tie_fecha_valor: String)`: Obtiene todos los items de una fecha.
+    - `itemsBySource(id_ga_fuente_medio: String)`: Obtiene todos los items de una fuente.
+    - `itemsByDateRange(start_date: String, end_date: String)`: Obtiene todos los items en un rango de fechas.
+    - `itemsByIncomeRange(min_income: Float, max_income: Float)`: Obtiene todos los items en un rango de ingresos.
+    """,
+    responses={
+        200: {
+            "description": "Respuesta exitosa",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "item": {
+                            "descGaSkuProducto": "K1010148001"
+                        }
+                    }
+                }
+            }
+        }
+    }
+)
+@jwt_required
+async def graphql_post(request: Request, body: GraphQLQuery, token: str = Depends(oauth2_scheme)):
     response = await schema.execute_async(body.query)
     if response.errors:
         try:
