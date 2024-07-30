@@ -1,3 +1,6 @@
+pandasai
 fastapi
 pandas
 uvicorn
+python-dotenv
+pydantic
