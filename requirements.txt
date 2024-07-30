@@ -4,3 +4,7 @@ pandas
 uvicorn
 python-dotenv
 pydantic
+pytest
+httpx
+pytest-asyncio
+graphene
