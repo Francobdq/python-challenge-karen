@@ -9,7 +9,8 @@
 
 1. Clonar el repositorio
 2. Navegar al directorio del proyecto
-3. Ejecutar `docker-compose up web`
+3. Reemplazar .env
+4. Ejecutar `docker-compose up web`
 
 La API estará disponible en `http://localhost:8000`.
 
